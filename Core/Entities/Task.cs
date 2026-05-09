@@ -3,7 +3,7 @@ using Core.Enums;
 
 namespace Core.Entities
 {
-    public class Task : BaseEntity
+    public class Task : BaseEntity, ISoftDeletable
     {     
         public string Title { get; set; }
         public string Description { get; set; }

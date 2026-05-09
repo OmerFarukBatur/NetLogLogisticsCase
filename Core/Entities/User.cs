@@ -2,7 +2,7 @@
 
 namespace Core.Entities
 {
-    public class User : BaseEntity
+    public class User : BaseEntity, ISoftDeletable
     {
         public int RoleId { get; set; }
         public string Email { get; set; }
