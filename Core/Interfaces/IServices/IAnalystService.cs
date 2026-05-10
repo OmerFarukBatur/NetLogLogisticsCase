@@ -9,14 +9,14 @@ namespace Core.Interfaces.IServices
         Task<PaginatedList<TaskPendingListDto>> GetPendingTasksAsync(
             string search = null,
             int pageIndex = 1,
-            int pageSize = 25);
+            int pageSize = 15);
 
         Task<PaginatedList<AnalystTaskListDto>> GetMyAnalysesAsync(
             int personnelId,
             string search = null,
             int? status = null,
             int pageIndex = 1,
-            int pageSize = 25);
+            int pageSize = 15);
 
         Task<AnalystTaskDetailDto> GetAnalysisDetailAsync(int analysisId, int personnelId);
         Task<ResponseMessageDto> TakeTaskAsync(int taskId, int personnelId);

@@ -33,7 +33,7 @@ namespace Business.Services
             string search = null,
             int? roleId = null,
             int pageIndex = 1,
-            int pageSize = 25)
+            int pageSize = 15)
         {
             var query = _userRepository
                 .GetAll()

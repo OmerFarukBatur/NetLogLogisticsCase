@@ -38,7 +38,7 @@ namespace Business.Services
         public async Task<PaginatedList<TaskPendingListDto>> GetPendingTasksAsync(
             string search = null,
             int pageIndex = 1,
-            int pageSize = 25)
+            int pageSize = 15)
         {
             var query = _taskRepository
                 .GetWhere(t => t.Stage == TaskStage.Open && t.TaskAnalysis == null)
@@ -65,7 +65,7 @@ namespace Business.Services
             string search = null,
             int? status = null,
             int pageIndex = 1,
-            int pageSize = 25)
+            int pageSize = 15)
         {
             var query = _analysisRepository
                 .GetWhere(a => a.AnalystPersonnelId == personnelId)

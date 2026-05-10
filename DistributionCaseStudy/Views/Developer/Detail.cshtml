@@ -1,0 +1,293 @@
+﻿@using Core.DTOs.DeveloperDtos
+@using Core.Enums
+@model DeveloperTaskDetailDto
+@{
+    ViewData["Title"] = "Task Detay";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    var isEditable = Model.Status != DevelopmentStatus.Done &&
+                     Model.Status != DevelopmentStatus.Cancelled;
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show">
+                    @TempData["ErrorMessage"]
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                </div>
+            }
+
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="card-title mb-0">Task Bilgisi</h4>
+                    <div>
+                        @{
+                            var headerStatusClass = Model.Status switch
+                            {
+                                DevelopmentStatus.InProgress => "badge-warning",
+                                DevelopmentStatus.OnHold => "badge-secondary",
+                                DevelopmentStatus.Done => "badge-success",
+                                DevelopmentStatus.Cancelled => "badge-danger",
+                                _ => "badge-secondary"
+                            };
+                        }
+                        <span class="badge @headerStatusClass badge-lg">@Model.StatusName</span>
+                        <a asp-action="Index" class="btn btn-secondary btn-sm ml-2">
+                            <i class="fa fa-arrow-left"></i> Geri
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info py-2 mb-3">
+                        <i class="fa fa-info-circle"></i>
+                        Aşağıdaki bilgiler <strong>salt okunur</strong>dur — değiştirilemez.
+                    </div>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th class="text-muted" width="25%">Başlık</th>
+                                    <td><strong>@Model.Title</strong></td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Açıklama</th>
+                                    <td style="white-space: pre-wrap;">@Model.Description</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Beklentiler</th>
+                                    <td>@(Model.ExpectationNotes ?? "-")</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Açan</th>
+                                    <td>@Model.OpenerName</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Bitiş Tarihi</th>
+                                    <td>
+                                        @(Model.DueDate.HasValue
+                                                                                ? Model.DueDate.Value.ToString("dd.MM.yyyy")
+                                                                                : "-")
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-4">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th class="text-muted" width="45%">Açılma</th>
+                                    <td>@Model.CreatedAt.ToString("dd.MM.yyyy")</td>
+                                </tr>
+                                @if (Model.CompletedAt.HasValue)
+                                {
+                                    <tr>
+                                        <th class="text-muted">Tamamlandı</th>
+                                        <td>@Model.CompletedAt.Value.ToString("dd.MM.yyyy HH:mm")</td>
+                                    </tr>
+                                }
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fa fa-search text-warning"></i> Analiz Bilgileri
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th class="text-muted" width="45%">Analist</th>
+                                    <td>@Model.AnalystName</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Zorluk</th>
+                                    <td>
+                                        <span class="badge badge-info">@Model.DifficultyName</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Öncelik</th>
+                                    <td>@Model.PriorityName</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label class="text-muted small font-weight-bold">Analist Notu</label>
+                                <div class="border rounded p-2 bg-light"
+                                     style="min-height: 60px; white-space: pre-wrap;">
+                                    @(Model.AnalystNotes ?? "-")
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-muted small font-weight-bold">Gereksinim Detayı</label>
+                                <div class="border rounded p-2 bg-light"
+                                     style="min-height: 80px; white-space: pre-wrap;">
+                                    @(Model.RequirementsDetail ?? "-")
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if (isEditable)
+            {
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fa fa-refresh text-primary"></i> Durum Güncelle
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="UpdateStatus" method="post" asp-antiforgery="true">
+                            <input type="hidden" name="DevelopmentId" value="@Model.DevelopmentId" />
+                            <div class="row align-items-end">
+                                <div class="col-md-4">
+                                    <label>Durum</label>
+                                    <select name="Status"
+                                            class="form-control"
+                                            asp-items="ViewBag.StatusList">
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Geliştirici Notu</label>
+                                    <input type="text"
+                                           name="DeveloperNotes"
+                                           class="form-control"
+                                           value="@Model.DeveloperNotes"
+                                           placeholder="Kısa not (opsiyonel)" />
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        Güncelle
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card mt-3 border-success">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fa fa-check-circle"></i> Task'ı Tamamla
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="Complete" method="post" asp-antiforgery="true">
+                            <input type="hidden" name="DevelopmentId" value="@Model.DevelopmentId" />
+
+                            <div class="form-group mb-3">
+                                <label>
+                                    Geliştirici Notu <span class="text-danger">*</span>
+                                </label>
+                                <textarea name="DeveloperNotes"
+                                      class="form-control"
+                                      rows="4"
+                                      placeholder="Yapılan işi, kararları ve varsa önemli noktaları açıklayınız">@Model.DeveloperNotes</textarea>
+                            </div>
+
+                            <button type="submit"
+                                    class="btn btn-success"
+                                    onclick="return confirm('Task tamamlandı olarak işaretlenecek. Onaylıyor musunuz?')">
+                                <i class="fa fa-check"></i> Tamamla
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card mt-3 border-danger">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fa fa-ban"></i> Task'ı İptal Et
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="Cancel" method="post" asp-antiforgery="true">
+                            <input type="hidden" name="DevelopmentId" value="@Model.DevelopmentId" />
+
+                            <div class="form-group mb-3">
+                                <label>
+                                    İptal Nedeni <span class="text-danger">*</span>
+                                </label>
+                                <textarea name="CancellationReason"
+                                      class="form-control"
+                                      rows="3"
+                                      placeholder="Neden iptal ettiğinizi açıklayınız"></textarea>
+                            </div>
+
+                            <button type="submit"
+                                    class="btn btn-danger"
+                                    onclick="return confirm('Task iptal edilecek. Bu işlem geri alınamaz. Onaylıyor musunuz?')">
+                                <i class="fa fa-times"></i> İptal Et
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Geliştirici Notları</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th class="text-muted" width="25%">Not</th>
+                                <td style="white-space: pre-wrap;">
+                                    @(Model.DeveloperNotes ?? "-")
+                                </td>
+                            </tr>
+                            @if (!string.IsNullOrEmpty(Model.CancellationReason))
+                            {
+                                <tr>
+                                    <th class="text-muted text-danger">İptal Nedeni</th>
+                                    <td class="text-danger">@Model.CancellationReason</td>
+                                </tr>
+                            }
+                            @if (Model.CompletedAt.HasValue)
+                            {
+                                <tr>
+                                    <th class="text-muted">Tamamlandı</th>
+                                    <td>@Model.CompletedAt.Value.ToString("dd.MM.yyyy HH:mm")</td>
+                                </tr>
+                            }
+                        </table>
+
+                        @if (Model.Status == DevelopmentStatus.Done)
+                        {
+                            <div class="alert alert-success mb-0">
+                                <i class="fa fa-check-circle"></i> Bu task başarıyla tamamlanmıştır.
+                            </div>
+                        }
+                        else if (Model.Status == DevelopmentStatus.Cancelled)
+                        {
+                            <div class="alert alert-danger mb-0">
+                                <i class="fa fa-ban"></i> Bu task iptal edilmiştir.
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>

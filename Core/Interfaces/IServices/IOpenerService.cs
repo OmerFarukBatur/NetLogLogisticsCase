@@ -11,7 +11,7 @@ namespace Core.Interfaces.IServices
             string search = null,
             int? stage = null,
             int pageIndex = 1,
-            int pageSize = 25);
+            int pageSize = 15);
 
         Task<TaskDetailDto> GetTaskDetailAsync(int taskId, int personnelId);
         Task<ResponseMessageDto> CreateTaskAsync(TaskCreateDto dto, int personnelId);

@@ -27,7 +27,7 @@ namespace Business.Services
             string search = null,
             int? stage = null,
             int pageIndex = 1,
-            int pageSize = 25)
+            int pageSize = 15)
         {
             var query = _taskRepository
                 .GetWhere(t => t.CreatedByPersonnelId == personnelId)

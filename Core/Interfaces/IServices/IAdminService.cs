@@ -10,7 +10,7 @@ namespace Core.Interfaces.IServices
             string search = null,
             int? roleId = null,
             int pageIndex = 1,
-            int pageSize = 25);
+            int pageSize = 15);
 
         Task<UserDetailDto> GetUserDetailAsync(int userId);
 

@@ -24,10 +24,10 @@ namespace Core.Helpers
         public static async Task<PaginatedList<T>> CreateAsync(
             IQueryable<T> source,
             int pageIndex = 1,
-            int pageSize = 25)
+            int pageSize = 15)
         {
             pageIndex = pageIndex < 1 ? 1 : pageIndex;
-            pageSize = pageSize < 1 ? 25 : pageSize;
+            pageSize = pageSize < 1 ? 15 : pageSize;
 
             var count = await source.CountAsync();
             var items = await source

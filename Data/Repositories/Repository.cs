@@ -48,7 +48,7 @@ namespace Data.Repositories
         public async Task<PaginatedList<T>> GetPagedAsync(
             Expression<Func<T, bool>> filter = null,
             int pageIndex = 1,
-            int pageSize = 25,
+            int pageSize = 15,
             bool tracking = false)
         {
             IQueryable<T> query = _table.AsQueryable();

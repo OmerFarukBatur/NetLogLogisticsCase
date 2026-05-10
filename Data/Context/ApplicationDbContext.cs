@@ -168,7 +168,8 @@ namespace Data.Context
         {
             var now = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-            const string defaultHash = "$2a$11$BURAYA_GERCEK_HASH_GELECEK";
+            // Tüm kullanıcıların default şifresi =>  Pass1234!
+            const string defaultHash = "$2a$11$HnCznl6xKGRssPPf/FNqo.vT7GErG/fxi4qVavbdEGVyK7EZgWp2e";
 
             // Roller
             modelBuilder.Entity<Role>().HasData(
