@@ -1,0 +1,51 @@
+﻿@using Core.DTOs.AuthDtos
+@model LoginDto
+@{
+    ViewData["Title"] = "Giriş Yap";
+    Layout = "_Layout";
+}
+
+<div class="card-body pt-5">
+    <h4 class="text-center">Giriş Yap</h4>
+
+    <form class="mt-5 mb-5 login-input"
+          asp-controller="Auth"
+          asp-action="Login"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger">@ViewBag.Error</div>
+        }
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+        }
+
+        <div class="form-group mb-3">
+            <input type="email"
+                   class="form-control"
+                   asp-for="Email"
+                   placeholder="Email" />
+            <span asp-validation-for="Email" class="text-danger small"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <input type="password"
+                   class="form-control"
+                   asp-for="Password"
+                   placeholder="Şifre" />
+            <span asp-validation-for="Password" class="text-danger small"></span>
+        </div>
+
+        <button type="submit"
+                class="btn login-form__btn submit w-100">
+            Giriş Yap
+        </button>
+
+    </form>
+    <p class="mt-5 login-form__footer">Şifreni mi unuttun hemen sıfırla <a asp-controller="Auth" asp-action="PwdReset" class="text-primary">Şifre Sıfırla</a></p>
+</div>

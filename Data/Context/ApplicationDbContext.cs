@@ -67,7 +67,7 @@ namespace Data.Context
                 e.Property(x => x.FirstName).IsRequired().HasMaxLength(100);
                 e.Property(x => x.LastName).IsRequired().HasMaxLength(100);
                 e.Property(x => x.Status).IsRequired();
-                e.Property(x => x.CreatedByUserId).IsRequired(false);
+                e.Property(x => x.CreatedByUserId);
 
                 e.HasOne(x => x.User)
                     .WithOne(u => u.Personnel)

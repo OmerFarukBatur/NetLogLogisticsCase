@@ -1,0 +1,57 @@
+﻿@using Core.DTOs.AuthDtos
+@model PasswordResetDto
+@{
+    ViewData["Title"] = "Şifre Sıfırla";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card-body pt-5">
+    <h4 class="text-center">Şifre Sıfırla</h4>
+
+    <form class="mt-4"
+          asp-controller="Auth"
+          asp-action="PwdReset"
+          method="post"
+          asp-antiforgery="true">
+
+        @if (ViewBag.ErrorMessage != null)
+        {
+            <div class="alert alert-danger">@ViewBag.ErrorMessage</div>
+        }
+
+        <div class="form-group mb-3">
+            <input type="email"
+                   class="form-control"
+                   asp-for="Email"
+                   placeholder="Email adresiniz" />
+            <span asp-validation-for="Email" class="text-danger small"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <input type="password"
+                   class="form-control"
+                   asp-for="Password"
+                   placeholder="Yeni şifre" />
+            <span asp-validation-for="Password" class="text-danger small"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <input type="password"
+                   class="form-control"
+                   asp-for="PasswordConfirm"
+                   placeholder="Yeni şifre tekrar" />
+            <span asp-validation-for="PasswordConfirm" class="text-danger small"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Şifremi Sıfırla</button>
+
+    </form>
+
+    <div class="text-center mt-3">
+        <a asp-controller="Auth" asp-action="Login">Giriş sayfasına dön</a>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}
