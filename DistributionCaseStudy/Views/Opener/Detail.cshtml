@@ -1,0 +1,212 @@
+﻿@using Core.DTOs.OpenerDtos
+@using Core.Enums
+@model TaskDetailDto
+@{
+    ViewData["Title"] = "Task Detay";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-12">
+            <div class="card" style="height:700px;">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="card-title mb-0">Task Detay</h4>
+                    <div>
+                        @if (Model.Stage == TaskStage.Open)
+                        {
+                            <a asp-action="Update"
+                               asp-route-id="@Model.Id"
+                               class="btn btn-warning btn-sm">
+                                <i class="fa fa-edit"></i> Düzenle
+                            </a>
+                            <button type="button"
+                                    class="btn btn-danger btn-sm ml-1"
+                                    onclick="confirmDelete(@Model.Id, '@Model.Title')">
+                                <i class="fa fa-trash"></i> Sil
+                            </button>
+                        }
+                        <a asp-action="Index" class="btn btn-secondary btn-sm ml-1">
+                            <i class="fa fa-arrow-left"></i> Geri
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+                    }
+
+                    <div class="row">
+                        <div class="col-md-8">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th class="text-muted" width="25%">Başlık</th>
+                                    <td><strong>@Model.Title</strong></td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Açıklama</th>
+                                    <td style="white-space: pre-wrap;">@Model.Description</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Beklentiler</th>
+                                    <td>@(Model.ExpectationNotes ?? "-")</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Bitiş Tarihi</th>
+                                    <td>
+                                        @(Model.DueDate.HasValue
+                                                                                ? Model.DueDate.Value.ToString("dd.MM.yyyy")
+                                                                                : "-")
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-4">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th class="text-muted">Durum</th>
+                                    <td>
+                                        @{
+                                            var stageClass = Model.Stage switch
+                                            {
+                                                TaskStage.Open => "badge-secondary",
+                                                TaskStage.InAnalysis => "badge-warning",
+                                                TaskStage.InDevelopment => "badge-primary",
+                                                TaskStage.Completed => "badge-success",
+                                                TaskStage.Rejected => "badge-danger",
+                                                _ => "badge-secondary"
+                                            };
+                                        }
+                                        <span class="badge @stageClass">@Model.StageName</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Açıldı</th>
+                                    <td>@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Güncellendi</th>
+                                    <td>@(Model.UpdatedAt?.ToString("dd.MM.yyyy HH:mm") ?? "-")</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.Analysis != null)
+            {
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fa fa-search text-warning"></i> Analiz Bilgisi
+                            <span class="badge badge-warning ml-2">@Model.Analysis.Status</span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <th class="text-muted" width="40%">Analist</th>
+                                        <td>@Model.Analysis.AnalystName</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-muted">Zorluk</th>
+                                        <td>@(Model.Analysis.DifficultyLevel ?? "-")</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-muted">Öncelik</th>
+                                        <td>@(Model.Analysis.Priority ?? "-")</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <th class="text-muted" width="40%">Analist Notu</th>
+                                        <td>@(Model.Analysis.AnalystNotes ?? "-")</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-muted">Gereksinimler</th>
+                                        <td>@(Model.Analysis.RequirementsDetail ?? "-")</td>
+                                    </tr>
+                                    @if (!string.IsNullOrEmpty(Model.Analysis.RejectionReason))
+                                    {
+                                        <tr>
+                                            <th class="text-muted text-danger">Red Nedeni</th>
+                                            <td class="text-danger">@Model.Analysis.RejectionReason</td>
+                                        </tr>
+                                    }
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @if (Model.Development != null)
+            {
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fa fa-code text-primary"></i> Geliştirme Bilgisi
+                            <span class="badge badge-primary ml-2">@Model.Development.Status</span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th class="text-muted" width="20%">Geliştirici</th>
+                                <td>@Model.Development.DeveloperName</td>
+                            </tr>
+                            @if (Model.Development.CompletedAt.HasValue)
+                            {
+                                <tr>
+                                    <th class="text-muted">Tamamlandı</th>
+                                    <td>@Model.Development.CompletedAt.Value.ToString("dd.MM.yyyy HH:mm")</td>
+                                </tr>
+                            }
+                        </table>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Task Sil</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p><strong id="deleteTaskTitle"></strong> başlıklı task'ı silmek istediğinize emin misiniz?</p>
+                <p class="text-danger small">Bu işlem geri alınamaz.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
+                <form asp-action="Delete" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" id="deleteTaskId" />
+                    <button type="submit" class="btn btn-danger">Sil</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmDelete(id, title) {
+            document.getElementById('deleteTaskId').value       = id;
+            document.getElementById('deleteTaskTitle').innerText = title;
+            $('#deleteModal').modal('show');
+        }
+    </script>
+}

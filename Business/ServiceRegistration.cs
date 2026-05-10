@@ -16,6 +16,7 @@ namespace Business
             {
                 cfg.AddProfile<AuthProfile>();
                 cfg.AddProfile<AdminProfile>();
+                cfg.AddProfile<OpenerProfile>();
             }, AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
@@ -24,6 +25,7 @@ namespace Business
 
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IAdminService, AdminService>();
+            services.AddScoped<IOpenerService, OpenerService>();
         }
     }
 }

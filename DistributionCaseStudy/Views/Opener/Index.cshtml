@@ -1,0 +1,230 @@
+﻿@using Core.DTOs.OpenerDtos
+@using Core.Enums
+@using Core.Helpers
+@model PaginatedList<TaskListDto>
+    @{
+        ViewData["Title"] = "Task'larım";
+        Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    }
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card" >
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="card-title mb-0">Task'larım</h4>
+                        <a asp-action="Create" class="btn btn-primary btn-sm">
+                            <i class="fa fa-plus"></i> Yeni Task
+                        </a>
+                    </div>
+
+                    <div class="card-body">
+
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success alert-dismissible fade show">
+                                @TempData["SuccessMessage"]
+                                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            </div>
+                        }
+                        @if (TempData["ErrorMessage"] != null)
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show">
+                                @TempData["ErrorMessage"]
+                                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            </div>
+                        }
+
+                        <form asp-action="Index" method="get" class="mb-4">
+                            <div class="row g-2 align-items-end">
+                                <div class="col-md-5">
+                                    <input type="text"
+                                           name="search"
+                                           class="form-control"
+                                           placeholder="Başlık veya açıklama ile ara..."
+                                           value="@ViewBag.Search" />
+                                </div>
+                                <div class="col-md-3">
+                                    <select name="stage" class="form-control">
+                                        <option value="">Tüm Durumlar</option>
+                                        @foreach (SelectListItem item in ViewBag.StageList)
+                                        {
+                                            <option value="@item.Value"
+                                                    selected="@(item.Selected ? "selected" : null)">
+                                                @item.Text
+                                            </option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn btn-info w-100">Filtrele</button>
+                                </div>
+                                <div class="col-md-2">
+                                    <a asp-action="Index" class="btn btn-secondary w-100">Temizle</a>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Başlık</th>
+                                        <th>Durum</th>
+                                        <th>Analist</th>
+                                        <th>Geliştirici</th>
+                                        <th>Bitiş Tarihi</th>
+                                        <th>Açılma</th>
+                                        <th class="text-center">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (!Model.Any())
+                                    {
+                                        <tr>
+                                            <td colspan="8" class="text-center text-muted py-4">
+                                                Henüz task oluşturmadınız.
+                                            </td>
+                                        </tr>
+                                    }
+                                    @foreach (var task in Model)
+                                    {
+                                        <tr>
+                                            <td>@task.Id</td>
+                                            <td>
+                                                <a asp-action="Detail" asp-route-id="@task.Id"
+                                                   class="text-dark font-weight-bold">
+                                                    @task.Title
+                                                </a>
+                                            </td>
+                                            <td>
+                                                @{
+                                                    var stageClass = task.Stage switch
+                                                    {
+                                                        TaskStage.Open => "badge-secondary",
+                                                        TaskStage.InAnalysis => "badge-warning",
+                                                        TaskStage.InDevelopment => "badge-primary",
+                                                        TaskStage.Completed => "badge-success",
+                                                        TaskStage.Rejected => "badge-danger",
+                                                        _ => "badge-secondary"
+                                                    };
+                                                }
+                                                <span class="badge @stageClass">@task.StageName</span>
+                                            </td>
+                                            <td>@(task.AnalystName ?? "-")</td>
+                                            <td>@(task.DeveloperName ?? "-")</td>
+                                            <td>
+                                                @(task.DueDate.HasValue
+                                                ? task.DueDate.Value.ToString("dd.MM.yyyy")
+                                                : "-")
+                                            </td>
+                                            <td>@task.CreatedAt.ToString("dd.MM.yyyy")</td>
+                                            <td class="text-center">
+                                                <a asp-action="Detail"
+                                                   asp-route-id="@task.Id"
+                                                   class="btn btn-info btn-xs"
+                                                   title="Detay">
+                                                    <i class="fa fa-eye"></i>
+                                                </a>
+
+                                                @if (task.Stage == TaskStage.Open)
+                                                {
+                                                    <a asp-action="Update"
+                                                       asp-route-id="@task.Id"
+                                                       class="btn btn-warning btn-xs"
+                                                       title="Düzenle">
+                                                        <i class="fa fa-edit"></i>
+                                                    </a>
+                                                    <button type="button"
+                                                            class="btn btn-danger btn-xs"
+                                                            title="Sil"
+                                                            onclick="confirmDelete(@task.Id, '@task.Title')">
+                                                        <i class="fa fa-trash"></i>
+                                                    </button>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        @if (Model.TotalPages > 1)
+                        {
+                            <nav class="mt-3">
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                                        <a class="page-link"
+                                           asp-action="Index"
+                                           asp-route-pageIndex="@(Model.PageIndex - 1)"
+                                           asp-route-search="@ViewBag.Search"
+                                           asp-route-stage="@ViewBag.Stage">
+                                            &laquo;
+                                        </a>
+                                    </li>
+                                    @for (int i = 1; i <= Model.TotalPages; i++)
+                                    {
+                                        <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                                            <a class="page-link"
+                                               asp-action="Index"
+                                               asp-route-pageIndex="@i"
+                                               asp-route-search="@ViewBag.Search"
+                                               asp-route-stage="@ViewBag.Stage">
+                                                @i
+                                            </a>
+                                        </li>
+                                    }
+                                    <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                                        <a class="page-link"
+                                           asp-action="Index"
+                                           asp-route-pageIndex="@(Model.PageIndex + 1)"
+                                           asp-route-search="@ViewBag.Search"
+                                           asp-route-stage="@ViewBag.Stage">
+                                            &raquo;
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                            <p class="text-center text-muted small">
+                                Toplam @Model.TotalCount kayıt — Sayfa @Model.PageIndex / @Model.TotalPages
+                            </p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Task Sil</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p><strong id="deleteTaskTitle"></strong> başlıklı task'ı silmek istediğinize emin misiniz?</p>
+                    <p class="text-danger small">Bu işlem geri alınamaz.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
+                    <form id="deleteForm" asp-action="Delete" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" id="deleteTaskId" />
+                        <button type="submit" class="btn btn-danger">Sil</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        <script>
+        function confirmDelete(id, title) {
+            document.getElementById('deleteTaskId').value    = id;
+            document.getElementById('deleteTaskTitle').innerText = title;
+            $('#deleteModal').modal('show');
+        }
+        </script>
+    }
