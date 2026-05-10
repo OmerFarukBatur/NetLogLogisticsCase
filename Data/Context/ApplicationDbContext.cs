@@ -101,9 +101,9 @@ namespace Data.Context
             modelBuilder.Entity<TaskAnalysis>(e =>
             {
                 e.HasKey(x => x.Id);
-                e.Property(x => x.AnalystNotes).HasMaxLength(2000);
-                e.Property(x => x.RequirementsDetail).HasMaxLength(4000);
-                e.Property(x => x.RejectionReason).HasMaxLength(1000);
+                e.Property(x => x.AnalystNotes).HasMaxLength(2000).IsRequired(false);
+                e.Property(x => x.RequirementsDetail).HasMaxLength(4000).IsRequired(false);
+                e.Property(x => x.RejectionReason).HasMaxLength(1000).IsRequired(false);
                 e.Property(x => x.Priority).IsRequired();
                 e.Property(x => x.Status).IsRequired();
                 e.Property(x => x.DifficultyLevel).HasConversion<int>();
@@ -123,8 +123,8 @@ namespace Data.Context
             modelBuilder.Entity<TaskDevelopment>(e =>
             {
                 e.HasKey(x => x.Id);
-                e.Property(x => x.DeveloperNotes).HasMaxLength(2000);
-                e.Property(x => x.CancellationReason).HasMaxLength(1000);
+                e.Property(x => x.DeveloperNotes).HasMaxLength(2000).IsRequired(false);
+                e.Property(x => x.CancellationReason).HasMaxLength(1000).IsRequired(false);
                 e.Property(x => x.Status).IsRequired();
 
                 e.HasOne(x => x.TaskAnalysis)
@@ -144,8 +144,8 @@ namespace Data.Context
                 e.HasKey(x => x.Id);
                 e.Property(x => x.DifficultyLevel).HasConversion<int?>().IsRequired(false);
                 e.Property(x => x.StageType).IsRequired().HasConversion<int>();
-                e.Property(x => x.SelectionReason).HasMaxLength(500);
-                e.Property(x => x.ReassignmentReason).HasMaxLength(500);
+                e.Property(x => x.SelectionReason).HasMaxLength(500).IsRequired(false);
+                e.Property(x => x.ReassignmentReason).HasMaxLength(500).IsRequired(false);
                 e.Property(x => x.IsConsecutiveBlocked);
                 e.Property(x => x.IsReassignment);
 

@@ -4,6 +4,7 @@ using Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260510153031_FixNullableHistoryReasons")]
+    partial class FixNullableHistoryReasons
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -350,6 +353,7 @@ namespace Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AnalystNotes")
+                        .IsRequired()
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 
@@ -366,10 +370,12 @@ namespace Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("RejectionReason")
+                        .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("RequirementsDetail")
+                        .IsRequired()
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
 
@@ -401,6 +407,7 @@ namespace Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CancellationReason")
+                        .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
@@ -411,6 +418,7 @@ namespace Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("DeveloperNotes")
+                        .IsRequired()
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 

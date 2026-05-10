@@ -1,0 +1,281 @@
+﻿@using Core.DTOs.AnalystDtos
+@using Core.Enums
+@using Core.Helpers
+@model AnalystTaskDetailDto
+@{
+    ViewData["Title"] = "Analiz Detay";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-12">
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show">
+                    @TempData["ErrorMessage"]
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                </div>
+            }
+
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="card-title mb-0">Task Bilgisi</h4>
+                    <div>
+                        <span class="badge @(Model.Status == AnalysisStatus.InProgress ? "badge-warning" :
+                                                                           Model.Status == AnalysisStatus.Approved ? "badge-success" :
+                                                                           "badge-danger") badge-lg">
+                            @Model.StatusName
+                        </span>
+                        <a asp-action="Index" class="btn btn-secondary btn-sm ml-2">
+                            <i class="fa fa-arrow-left"></i> Geri
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info py-2 mb-3">
+                        <i class="fa fa-info-circle"></i>
+                        Aşağıdaki bilgiler kullanıcı tarafından girilmiştir ve
+                        <strong>değiştirilemez</strong>.
+                    </div>
+                    <table class="table table-borderless">
+                        <tr>
+                            <th class="text-muted" width="20%">Başlık</th>
+                            <td><strong>@Model.Title</strong></td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Açıklama</th>
+                            <td style="white-space: pre-wrap;">@Model.Description</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Beklentiler</th>
+                            <td>@(Model.ExpectationNotes ?? "-")</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Açan</th>
+                            <td>@Model.OpenerName</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Bitiş Tarihi</th>
+                            <td>
+                                @(Model.DueDate.HasValue
+                                                                ? Model.DueDate.Value.ToString("dd.MM.yyyy")
+                                                                : "-")
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Açılma</th>
+                            <td>@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            @if (Model.CanUpdate)
+            {
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fa fa-edit text-warning"></i> Analiz Bilgileri
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="UpdateAnalysis" method="post" asp-antiforgery="true">
+                            <input type="hidden" name="AnalysisId" value="@Model.AnalysisId" />
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label>Zorluk Seviyesi <span class="text-danger">*</span></label>
+                                        <select name="DifficultyLevel"
+                                                class="form-control"
+                                                asp-items="ViewBag.DifficultyList">
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label>Öncelik <span class="text-danger">*</span></label>
+                                        <select name="Priority"
+                                                class="form-control"
+                                                asp-items="ViewBag.PriorityList">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label>Analist Notu</label>
+                                <textarea name="AnalystNotes"
+                                      class="form-control"
+                                      rows="3"
+                                      placeholder="Analiz notunuzu giriniz">@Model.AnalystNotes</textarea>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label>Gereksinim Detayı</label>
+                                <textarea name="RequirementsDetail"
+                                      class="form-control"
+                                      rows="4"
+                                      placeholder="Geliştirici için gereksinim detayını giriniz">@Model.RequirementsDetail</textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fa fa-save"></i> Kaydet
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                @if (Model.Status == AnalysisStatus.InProgress)
+                {
+                    <div class="card mt-3 border-success">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fa fa-check-circle"></i> Geliştirmeye Al
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small mb-3">
+                                Analizi tamamladıysanız aşağıdaki formu doldurup geliştirmeye alabilirsiniz.
+                                Developer sistem tarafından otomatik atanır.
+                            </p>
+                            <form asp-action="Approve" method="post" asp-antiforgery="true"
+                                  id="approveForm">
+                                <input type="hidden" name="AnalysisId" value="@Model.AnalysisId" />
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label>Zorluk Seviyesi <span class="text-danger">*</span></label>
+                                            <select name="DifficultyLevel"
+                                                    class="form-control"
+                                                    asp-items="ViewBag.DifficultyList">
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label>Öncelik <span class="text-danger">*</span></label>
+                                            <select name="Priority"
+                                                    class="form-control"
+                                                    asp-items="ViewBag.PriorityList">
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label>Analist Notu <span class="text-danger">*</span></label>
+                                    <textarea name="AnalystNotes"
+                                      class="form-control"
+                                      rows="3"
+                                      placeholder="Zorunlu — geliştirici bu notu görecek">@Model.AnalystNotes</textarea>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label>Gereksinim Detayı <span class="text-danger">*</span></label>
+                                    <textarea name="RequirementsDetail"
+                                      class="form-control"
+                                      rows="4"
+                                      placeholder="Zorunlu — geliştirici için detaylı gereksinim">@Model.RequirementsDetail</textarea>
+                                </div>
+
+                                <button type="submit"
+                                        class="btn btn-success"
+                                        onclick="return confirm('Task geliştirmeye alınacak. Developer sistem tarafından atanacak. Onaylıyor musunuz?')">
+                                    <i class="fa fa-rocket"></i> Geliştirmeye Al
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3 border-danger">
+                        <div class="card-header bg-danger text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fa fa-times-circle"></i> Task'ı Reddet
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form asp-action="Reject" method="post" asp-antiforgery="true">
+                                <input type="hidden" name="AnalysisId" value="@Model.AnalysisId" />
+
+                                <div class="form-group mb-3">
+                                    <label>Red Nedeni <span class="text-danger">*</span></label>
+                                    <textarea name="RejectionReason"
+                                      class="form-control"
+                                      rows="3"
+                                      placeholder="Neden reddedildiğini açıklayınız"></textarea>
+                                </div>
+
+                                <button type="submit"
+                                        class="btn btn-danger"
+                                        onclick="return confirm('Task reddedilecek. Bu işlem geri alınamaz. Onaylıyor musunuz?')">
+                                    <i class="fa fa-ban"></i> Reddet
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fa fa-search text-warning"></i> Analiz Bilgileri
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th class="text-muted" width="25%">Zorluk</th>
+                                <td>
+                                    <span class="badge badge-info">
+                                        @Model.DifficultyLevel.GetDisplayName()
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Öncelik</th>
+                                <td>@Model.Priority.GetDisplayName()</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Analist Notu</th>
+                                <td>@(Model.AnalystNotes ?? "-")</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Gereksinim Detayı</th>
+                                <td>@(Model.RequirementsDetail ?? "-")</td>
+                            </tr>
+                            @if (!string.IsNullOrEmpty(Model.RejectionReason))
+                            {
+                                <tr>
+                                    <th class="text-muted text-danger">Red Nedeni</th>
+                                    <td class="text-danger">@Model.RejectionReason</td>
+                                </tr>
+                            }
+                        </table>
+
+                        @if (Model.Status == AnalysisStatus.Approved)
+                        {
+                            <div class="alert alert-success mt-2 mb-0">
+                                <i class="fa fa-check-circle"></i>
+                                Bu task geliştirmeye alınmıştır. Developer atanmıştır.
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
