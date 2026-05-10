@@ -17,18 +17,20 @@ namespace Data.Context
         public DbSet<TaskDevelopment> TaskDevelopments { get; set; }
         public DbSet<AssignmentHistory> AssignmentHistories { get; set; }
 
-        public override async Task<int> SaveChangesAsync(
-            CancellationToken cancellationToken = default)
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            var entries = ChangeTracker.Entries<BaseEntity>();
+            var entries = ChangeTracker.Entries<BaseEntity>()
+                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified);
+
             foreach (var entry in entries)
             {
                 if (entry.State == EntityState.Added)
                     entry.Entity.CreatedAt = DateTime.UtcNow;
 
-                else if (entry.State == EntityState.Modified)
+                if (entry.State == EntityState.Modified)
                     entry.Entity.UpdatedAt = DateTime.UtcNow;
             }
+
             return await base.SaveChangesAsync(cancellationToken);
         }
 
@@ -164,11 +166,9 @@ namespace Data.Context
 
         private void SeedData(ModelBuilder modelBuilder)
         {
-            var now = new DateTime();
+            var now = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-            // Tüm kullanıcıların başlangıç şifresi: Pass1234!
-            // Gerçek BCrypt hash: BCrypt.Net.BCrypt.HashPassword("Pass1234!")
-            const string defaultHash = "$2a$11$replacethiswithrealbcrypthashbeforedeployment.";
+            const string defaultHash = "$2a$11$BURAYA_GERCEK_HASH_GELECEK";
 
             // Roller
             modelBuilder.Entity<Role>().HasData(
@@ -195,16 +195,17 @@ namespace Data.Context
 
             // Personel
             modelBuilder.Entity<Personnel>().HasData(
-                new Personnel { Id = 1, UserId = 2, FirstName = "Ahmet", LastName = "Yılmaz", Status = PersonnelStatus.Active, IsDeleted = false, CreatedAt = now, CreatedByUserId = 1 },
-                new Personnel { Id = 2, UserId = 3, FirstName = "Ayşe", LastName = "Kaya", Status = PersonnelStatus.Active, IsDeleted = false, CreatedAt = now, CreatedByUserId = 1 },
-                new Personnel { Id = 3, UserId = 4, FirstName = "Mehmet", LastName = "Demir", Status = PersonnelStatus.Active, IsDeleted = false, CreatedAt = now, CreatedByUserId = 1 },
-                new Personnel { Id = 4, UserId = 5, FirstName = "Fatma", LastName = "Çelik", Status = PersonnelStatus.Active, IsDeleted = false, CreatedAt = now, CreatedByUserId = 1 },
-                new Personnel { Id = 5, UserId = 6, FirstName = "Ali", LastName = "Şahin", Status = PersonnelStatus.Active, IsDeleted = false, CreatedAt = now, CreatedByUserId = 1 },
-                new Personnel { Id = 6, UserId = 7, FirstName = "Zeynep", LastName = "Arslan", Status = PersonnelStatus.Active, IsDeleted = false, CreatedAt = now, CreatedByUserId = 1 },
-                new Personnel { Id = 7, UserId = 8, FirstName = "Mustafa", LastName = "Koç", Status = PersonnelStatus.Active, IsDeleted = false, CreatedAt = now, CreatedByUserId = 1 },
-                new Personnel { Id = 8, UserId = 9, FirstName = "Elif", LastName = "Erdoğan", Status = PersonnelStatus.Active, IsDeleted = false, CreatedAt = now, CreatedByUserId = 1 },
-                new Personnel { Id = 9, UserId = 10, FirstName = "Hasan", LastName = "Doğan", Status = PersonnelStatus.Active, IsDeleted = false, CreatedAt = now, CreatedByUserId = 1 },
-                new Personnel { Id = 10, UserId = 11, FirstName = "Merve", LastName = "Yıldız", Status = PersonnelStatus.Active, IsDeleted = false, CreatedAt = now, CreatedByUserId = 1 }
+                new Personnel { Id = 1, UserId = 1, FirstName = "Sistem", LastName = "Admin", Status = PersonnelStatus.Active, IsDeleted = false, CreatedAt = now, CreatedByUserId = 1 },
+                new Personnel { Id = 2, UserId = 2, FirstName = "Ahmet", LastName = "Yılmaz", Status = PersonnelStatus.Active, IsDeleted = false, CreatedAt = now, CreatedByUserId = 1 },
+                new Personnel { Id = 3, UserId = 3, FirstName = "Ayşe", LastName = "Kaya", Status = PersonnelStatus.Active, IsDeleted = false, CreatedAt = now, CreatedByUserId = 1 },
+                new Personnel { Id = 4, UserId = 4, FirstName = "Mehmet", LastName = "Demir", Status = PersonnelStatus.Active, IsDeleted = false, CreatedAt = now, CreatedByUserId = 1 },
+                new Personnel { Id = 5, UserId = 5, FirstName = "Fatma", LastName = "Çelik", Status = PersonnelStatus.Active, IsDeleted = false, CreatedAt = now, CreatedByUserId = 1 },
+                new Personnel { Id = 6, UserId = 6, FirstName = "Ali", LastName = "Şahin", Status = PersonnelStatus.Active, IsDeleted = false, CreatedAt = now, CreatedByUserId = 1 },
+                new Personnel { Id = 7, UserId = 7, FirstName = "Zeynep", LastName = "Arslan", Status = PersonnelStatus.Active, IsDeleted = false, CreatedAt = now, CreatedByUserId = 1 },
+                new Personnel { Id = 8, UserId = 8, FirstName = "Mustafa", LastName = "Koç", Status = PersonnelStatus.Active, IsDeleted = false, CreatedAt = now, CreatedByUserId = 1 },
+                new Personnel { Id = 9, UserId = 9, FirstName = "Elif", LastName = "Erdoğan", Status = PersonnelStatus.Active, IsDeleted = false, CreatedAt = now, CreatedByUserId = 1 },
+                new Personnel { Id = 10, UserId = 10, FirstName = "Hasan", LastName = "Doğan", Status = PersonnelStatus.Active, IsDeleted = false, CreatedAt = now, CreatedByUserId = 1 },
+                new Personnel { Id = 11, UserId = 11, FirstName = "Merve", LastName = "Yıldız", Status = PersonnelStatus.Active, IsDeleted = false, CreatedAt = now, CreatedByUserId = 1 }
             );
         }
     }

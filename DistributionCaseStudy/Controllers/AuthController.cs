@@ -1,4 +1,5 @@
 ﻿using Core.DTOs.AuthDtos;
+using Core.Enums;
 using Core.Interfaces.IServices;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -8,6 +9,7 @@ using System.Security.Claims;
 
 namespace DistributionCaseStudy.Controllers
 {
+    [AllowAnonymous]
     public class AuthController : BaseController
     {
         private readonly IAuthService _authService;
@@ -65,7 +67,7 @@ namespace DistributionCaseStudy.Controllers
                 new ClaimsPrincipal(claimsIdentity),
                 authProperties);
 
-            return RedirectByRole(data.Role);
+            return RedirectByRole(((UserRole)data.RoleId).ToString());
         }
 
         [HttpPost]
@@ -108,16 +110,27 @@ namespace DistributionCaseStudy.Controllers
         {
             return View();
         }
+
+        [HttpGet]
+        public IActionResult Error()
+        {
+            return View();
+        }
+
         private IActionResult RedirectByRole(string role)
         {
-            return role switch
+            if (Enum.TryParse<UserRole>(role, out var userRole))
             {
-                "Admin" => RedirectToAction("Index", "Admin"),
-                "Opener" => RedirectToAction("Index", "Opener"),
-                "Analyst" => RedirectToAction("Index", "Analyst"),
-                "Developer" => RedirectToAction("Index", "Developer"),
-                _ => RedirectToAction("Login", "Auth")
-            };
+                return userRole switch
+                {
+                    UserRole.Admin => RedirectToAction("Index", "Admin"),
+                    UserRole.Opener => RedirectToAction("Index", "Opener"),
+                    UserRole.Analyst => RedirectToAction("Index", "Analyst"),
+                    UserRole.Developer => RedirectToAction("Index", "Developer"),
+                    _ => RedirectToAction("Login", "Auth")
+                };
+            }
+            return RedirectToAction("Login", "Auth");
         }
     }
 }

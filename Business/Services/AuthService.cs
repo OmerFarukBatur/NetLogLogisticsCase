@@ -1,6 +1,7 @@
 ﻿using Core.DTOs;
 using Core.DTOs.AuthDtos;
 using Core.Entities;
+using Core.Enums;
 using Core.Interfaces.IRepositories;
 using Core.Interfaces.IServices;
 using Microsoft.EntityFrameworkCore;
@@ -17,8 +18,7 @@ namespace Business.Services
             _userRepository = userRepository;
         }
 
-        public async Task<(ResponseMessageDto Response, AuthenticationDto? Data)> LoginAsync(
-            LoginDto loginDto)
+        public async Task<(ResponseMessageDto Response, AuthenticationDto? Data)> LoginAsync(LoginDto loginDto)
         {
             var user = await _userRepository
                 .GetWhere(x => x.Email == loginDto.Email, tracking: false)
@@ -40,20 +40,28 @@ namespace Business.Services
                     Message = "Kullanıcı hesabı pasif durumda. Lütfen yönetici ile iletişime geçin."
                 }, null);
 
-            if (user.Personnel == null)
+            if (user.Personnel == null && user.RoleId != (int)UserRole.Admin)
                 return (new ResponseMessageDto
                 {
                     Status = false,
                     Message = "Kullanıcıya ait personel kaydı bulunamadı."
                 }, null);
 
+            var firstName = user.Personnel?.FirstName ?? string.Empty;
+            var lastName = user.Personnel?.LastName ?? string.Empty;
+            var personnelId = user.Personnel?.Id ?? 0;
+
+            var welcomeName = string.IsNullOrEmpty(firstName)
+                ? user.Email
+                : $"{firstName} {lastName}";
+
             var authDto = new AuthenticationDto
             {
                 Id = user.Id,
-                PersonnelId = user.Personnel.Id,
+                PersonnelId = personnelId,
                 Email = user.Email,
-                FirstName = user.Personnel.FirstName,
-                LastName = user.Personnel.LastName,
+                FirstName = firstName,
+                LastName = lastName,
                 Role = user.Role.Name,
                 RoleId = user.RoleId,
                 IsActive = user.IsActive
@@ -62,7 +70,7 @@ namespace Business.Services
             return (new ResponseMessageDto
             {
                 Status = true,
-                Message = $"Hoş geldin, {user.Personnel.FirstName} {user.Personnel.LastName}!"
+                Message = $"Hoş geldin, {welcomeName}!"
             }, authDto);
         }
 

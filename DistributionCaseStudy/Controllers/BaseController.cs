@@ -1,4 +1,5 @@
 ﻿using Core.DTOs.AuthDtos;
+using Core.Enums;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -27,10 +28,10 @@ namespace DistributionCaseStudy.Controllers
             }
         }
 
-        protected bool IsAdmin => CurrentUser?.Role == "Admin";
-        protected bool IsOpener => CurrentUser?.Role == "Opener";
-        protected bool IsAnalyst => CurrentUser?.Role == "Analyst";
-        protected bool IsDeveloper => CurrentUser?.Role == "Developer";
+        protected bool IsAdmin => CurrentUser?.RoleId == (int)UserRole.Admin;
+        protected bool IsOpener => CurrentUser?.RoleId == (int)UserRole.Opener;
+        protected bool IsAnalyst => CurrentUser?.RoleId == (int)UserRole.Analyst;
+        protected bool IsDeveloper => CurrentUser?.RoleId == (int)UserRole.Developer;
 
         protected int UserId => CurrentUser?.Id ?? 0;
         protected int PersonnelId => CurrentUser?.PersonnelId ?? 0;

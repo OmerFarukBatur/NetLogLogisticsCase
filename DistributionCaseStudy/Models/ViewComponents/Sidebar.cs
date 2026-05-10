@@ -1,23 +1,18 @@
-﻿using Core.Entities;
-using Core.Enums;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace DistributionCaseStudy.Models.ViewComponents
 {
     public class Sidebar : ViewComponent
     {
-
-        public Sidebar()
-        {
-        }
-
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var user = User as ClaimsPrincipal;
+            var claimsPrincipal = HttpContext.User;
             var model = new SidebarViewModel
             {
-                Role = user?.FindFirst(ClaimTypes.Role)?.Value ?? UserRole.Opener.ToString()
+                Role = claimsPrincipal.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty,
+                FullName = $"{claimsPrincipal.FindFirst(ClaimTypes.Name)?.Value} {claimsPrincipal.FindFirst(ClaimTypes.Surname)?.Value}".Trim(),
+                Email = claimsPrincipal.FindFirst(ClaimTypes.Email)?.Value ?? string.Empty
             };
             return View(model);
         }

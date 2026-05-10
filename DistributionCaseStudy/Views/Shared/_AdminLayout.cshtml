@@ -13,18 +13,19 @@
 
     <link href="~/TemplasteDocs/css/style.css" rel="stylesheet">
 
-
 </head>
 
 <body>
     <div id="preloader">
         <div class="loader">
             <svg class="circular" viewBox="25 25 50 50">
-                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="3" stroke-miterlimit="10" />
+                <circle class="path" cx="50" cy="50" r="20"
+                        fill="none" stroke-width="3" stroke-miterlimit="10" />
             </svg>
         </div>
     </div>
     <div id="main-wrapper">
+
         <div class="nav-header">
             <div class="brand-logo">
                 <a>
@@ -36,38 +37,25 @@
                 </a>
             </div>
         </div>
-        <!--**********************************
-            Header start
-        ***********************************-->
-        @await Component.InvokeAsync("Header");
-        <!--**********************************
-            Header end ti-comment-alt
-        ***********************************-->
-        <!--**********************************
-            Sidebar start
-        ***********************************-->
-        @await Component.InvokeAsync("Sidebar");
-        <!--**********************************
-            Sidebar end
-        ***********************************-->
-        <!--**********************************
-            Content body start
-        ***********************************-->
-        <div class="content-body">
 
-            @RenderBody()
+        <!-- Header -->
+        @await Component.InvokeAsync("Header")
+
+        <!-- Sidebar -->
+        @await Component.InvokeAsync("Sidebar")
+
+        <!-- İçerik -->
+        <div class="content-body">
+            <div class="container-fluid">
+                @RenderBody()
+            </div>
         </div>
-        <!--**********************************
-            Content body end
-        ***********************************-->
-        <!--**********************************
-            Footer start
-        ***********************************-->
-        @await Component.InvokeAsync("Footer");
-        <!--**********************************
-            Footer end
-        ***********************************-->
+
+        <!-- Footer -->
+        @await Component.InvokeAsync("Footer")
+
     </div>
+
     <script src="~/TemplasteDocs/plugins/common/common.min.js"></script>
     <script src="~/TemplasteDocs/js/custom.min.js"></script>
     <script src="~/TemplasteDocs/js/settings.js"></script>

@@ -15,6 +15,7 @@ namespace Business
             services.AddAutoMapper(cfg =>
             {
                 cfg.AddProfile<AuthProfile>();
+                cfg.AddProfile<AdminProfile>();
             }, AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
@@ -22,6 +23,7 @@ namespace Business
             services.AddFluentValidationClientsideAdapters();
 
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IAdminService, AdminService>();
         }
     }
 }
